@@ -61,3 +61,14 @@ Métodos auxilizares:
 -> GetSpriteCollider() — calcula o "Rectangle" de colisão na posição atual do sprite da nave principal
 -> CheckCollision(Rectangle) — verifica interseção com outro retângulo via "Intersects()"
 -> "Draw()" — desenha o sprite usando o SpriteBatch do "Global.Instance.CoreGame"
+
+.Modules/Sprite/PlayerSprite.cs
+-> Controla a nave do jogador.
+
+| "playerWidth" => 60 | Largura usada para calcular o limite horizontal no ecrã |
+| "moveSpeed" => 2.0f | Velocidade de movimento horizontal em pixels por frame |
+| "shooting" => bool | Impede disparo contínuo ao segurar a tecla Espaço (tecla do disparo) |
+
+"Update()": Lê o teclado — 'A' move para a esquerda, 'D' para a direita, dentro dos limites (0 a 60 ScreenWidth). Ao premir 'Espaço' com 'shooting == false', chama "FireMissile()" e ativa a mecânica e processo "shooting". Ao largar a tecla espaço, "shooting" volta a false.
+
+"FireMissile()": Cria um MissileSprite centrado na nave (Position.X + 27) e adiciona-o ao "MissileManager". Toca o som de disparo com volume 0.3f.
