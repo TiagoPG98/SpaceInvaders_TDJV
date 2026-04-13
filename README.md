@@ -9,3 +9,9 @@ Identificação do Grupo
 
 | Tiago Gonçalves | 34617 |
 | Gonçalo Ribeiro | 36854 |
+_________________________________________________
+
+
+_________________________________________________
+Análise do Código do jogo
+
