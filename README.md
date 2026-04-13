@@ -58,9 +58,9 @@ Classe base de todos os objetos visuais. Tem todos os atributos necessários par
 | "Speed" => "float" => Velocidade de movimento |
 | "Rotation" => "float" => Ângulo de rotação |
 **Métodos auxilizares:**
--> GetSpriteCollider() — calcula o "Rectangle" de colisão na posição atual do sprite da nave principal
--> CheckCollision(Rectangle) — verifica interseção com outro retângulo via "Intersects()"
--> "Draw()" — desenha o sprite usando o SpriteBatch do "Global.Instance.CoreGame"
+-> GetSpriteCollider() — calcula o "Rectangle" de colisão na posição atual do sprite da nave principal;
+-> CheckCollision(Rectangle) — verifica interseção com outro retângulo via "Intersects()";
+-> "Draw()" — desenha o sprite usando o SpriteBatch do "Global.Instance.CoreGame";
 
 **.Modules/Sprite/PlayerSprite.cs**
 -> Controla a nave do jogador.
@@ -125,10 +125,10 @@ Destruir todos os invasores com os mísseis da nave antes que estes atinjam a pa
 
 **Controlos**
 
- A => Mover a nave para a esquerda
- D => Mover a nave para a direita 
- Espaço/Space Bar =>  Disparar míssil
- Escape/Esc => Sair do jogo 
+ A => Mover a nave para a esquerda;
+ D => Mover a nave para a direita;
+ Espaço/Space Bar =>  Disparar míssil;
+ Escape/Esc => Sair do jogo ;
 
 Regras
 - Os invasores movem-se lateralmente e invertem direção ao atingir as bordas do ecrã.
