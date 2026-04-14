@@ -11,7 +11,144 @@ Identificação do Grupo
 | Gonçalo Ribeiro | 36854 |
 _________________________________________________
 
+**Descrição da Implementação**
 
+**Arquitetura Geral**
+O projeto segue uma arquitetura modular em camadas, organizada em namespaces:
+SpaceInvaders — Classe principal do jogo
+Modules.Game — Interface e classe base de todos os objetos do jogo
+Modules.Manager — Gestor genérico de grupos de objetos
+Modules.Sprite — Classes concretas dos objetos visuais (jogador, inimigos, míssil)
+Modules.Util — Utilitários globais (Singleton de configuração)
+
+**Padrão Singleton — Global**
+A classe Global implementa o padrão Singleton thread-safe, garantindo uma única instância partilhada em todo o jogo. Armazena referências globais essenciais como a largura/altura do ecrã (800x600) e uma referência à instância principal SpaceInvaders, acessível por todos os módulos sem necessidade de passar parâmetros.
+
+**Interface e Hierarquia de Objetos**
+Todos os objetos do jogo seguem uma hierarquia clara:
+
+GameInterface (interface)
+
+    └── GameObject (classe base)
+
+            └── Sprite (classe base visual)
+
+                    ├── PlayerSprite
+
+                    ├── InvaderSprite
+
+                    └── MissileSprite
+
+A interface GameInterface define o contrato dos 4 métodos MonoGame (Initialize, LoadContent, Update, Draw). A classe GameObject implementa-a com métodos virtuais vazios. A classe Sprite estende GameObject adicionando todos os atributos visuais. As classes concretas sobrepõem (override) apenas o que necessitam.
+
+**Gestor Genérico — TManager<T>**
+Um dos pontos centrais desta implementação é o **TManager<T>**, uma classe genérica que gere coleções de qualquer tipo derivado de **GameObject**. Permite adicionar objetos com IDs automáticos, marcar objetos para remoção segura e iterar chamando **Update/Draw** em todos os objetos geridos.
+
+A remoção é feita através de uma **DeleteList** — os objetos são marcados durante o Update mas apenas removidos no final do ciclo, evitando erros de modificação da coleção durante iteração.
+
+O jogo usa três instâncias: **PlayerManager, InvaderManager e MissileManager**.
+
+**Criação e Posicionamento dos Invasores**
+Os invasores são criados em SetupInvaders() num ciclo duplo (4 linhas × 8 colunas = 32 invasores). Cada linha tem uma textura diferente (vermelho, amarelo, azul) e um collider próprio. Todos partilham a velocidade inicial de 1.5f.
+
+**Movimento dos Invasores**
+Cada InvaderSprite move-se horizontalmente de forma autónoma. Quando atinge a borda direita do ecrã (ScreenWidth - 40), a velocidade inverte para -1.5f. Quando atinge a borda esquerda (X < 0), inverte para +1.5f.
+
+**Sistema de Mísseis**
+O jogador dispara premindo Espaço. A variável shooting garante que só é criado um míssil por pressão de tecla. O míssil é criado na posição central do jogador e move-se para cima com aceleração progressiva (acceleration -= 0.03f por frame), tornando-se progressivamente mais rápido.
+
+O míssil é removido automaticamente quando sai do ecrã pelo topo ou quando colide com um invasor.
+**Deteção de Colisões**
+As colisões são detetadas por AABB (Axis-Aligned Bounding Box) usando Rectangle.Intersects(). Cada sprite tem um Collider com dimensões próprias e o método GetSpriteCollider() calcula o retângulo de colisão na posição atual. Quando um míssil colide com um invasor, ambos são marcados para remoção e é tocado um efeito sonoro de explosão.
+Som
+O jogo carrega dois efeitos sonoros via MonoGame Content Pipeline:
+
+retro-shoot-sound — disparado ao atirar
+retro-explosion-sound — disparado ao destruir um invasor
+
+
+**Organização das Pastas e Ficheiros**
+SpaceInvaders/                          ← Raiz do repositório
+
+│
+
+├── SpaceInvaders/                      ← Projeto principal
+
+│   │
+
+│   ├── Content/                        ← Recursos do jogo (MonoGame Content Pipeline)
+
+│   │   ├── Atrox.spritefont            ← Fonte usada no título do jogo
+
+│   │   ├── player.*                    ← Sprite da nave do jogador
+
+│   │   ├── missile.*                   ← Sprite do míssil
+
+│   │   ├── enemy-red.*                 ← Sprite dos invasores vermelhos (linha 1)
+
+│   │   ├── enemy-yellow.*              ← Sprite dos invasores amarelos (linhas 2-3)
+
+│   │   ├── enemy-blue.*                ← Sprite dos invasores azuis (linha 4)
+
+│   │   ├── enemy-green.*               ← Sprite dos invasores verdes
+
+│   │   ├── retro-shoot-sound.*         ← Efeito sonoro de disparo
+
+│   │   └── retro-explosion-sound.*     ← Efeito sonoro de explosão
+
+│   │
+
+│   ├── Modules/                        ← Módulos reutilizáveis do jogo
+
+│   │   ├── Game/                       ← Definições base de objetos
+
+│   │   │   ├── GameInterface.cs        ← Interface com os 4 métodos MonoGame
+
+│   │   │   └── GameObject.cs           ← Classe base de todos os objetos
+
+│   │   │
+
+│   │   ├── Manager/                    ← Sistema de gestão de objetos
+
+│   │   │   └── TManager.cs             ← Gestor genérico de coleções de GameObjects
+
+│   │   │
+
+│   │   ├── Sprite/                     ← Objetos visuais do jogo
+
+│   │   │   ├── Sprite.cs               ← Classe base com atributos visuais e colisão
+
+│   │   │   ├── PlayerSprite.cs         ← Lógica do jogador (movimento + disparo)
+
+│   │   │   ├── InvaderSprite.cs        ← Lógica dos invasores (movimento lateral)
+
+│   │   │   └── MissileSprite.cs        ← Lógica do míssil (movimento + colisão)
+
+│   │   │
+
+│   │   └── Util/                       ← Utilitários globais
+
+│   │       └── Global.cs               ← Singleton com referências globais
+
+│   │
+
+│   ├── SpaceInvaders.cs                ← Classe principal do jogo (ciclo MonoGame)
+
+│   ├── Program.cs                      ← Ponto de entrada da aplicação
+
+│   ├── SpaceInvaders.csproj            ← Ficheiro de projeto (.NET 6.0)
+
+│   └── app.manifest                    ← Manifesto da aplicação Windows
+
+│
+
+├── SpaceInvaders.sln                   ← Solução Visual Studio
+
+├── ScreenShot.PNG                      ← Captura de ecrã do jogo
+
+├── LICENSE                             ← Licença MIT
+
+└── README.md                           ← Este ficheiro
 _________________________________________________
 **Análise do Código do jogo**
 
@@ -104,21 +241,21 @@ Variáveis de Estado
 
 **Métodos**
 
-SpaceInvaders() (construtor): Define a resolução da janela (800x600) a partir das constantes do "Global". Define o diretório de conteúdos como "Content" e torna o cursor do rato visível.
+**SpaceInvaders() (construtor)**: Define a resolução da janela (800x600) a partir das constantes do "Global". Define o diretório de conteúdos como "Content" e torna o cursor do rato visível.
 
-Initialize(): Regista a instância atual no Singleton (Global.Instance.CoreGame = this), tornando-a acessível para todos os módulos.
+**Initialize()**: Regista a instância atual no Singleton (Global.Instance.CoreGame = this), tornando-a acessível para todos os módulos.
 
-LoadContent(): Carrega todos os assets (1 tipo de letra, 5 texturas, 2 sons) via MonoGame Content Pipeline. Chama SetupPlayer() e SetupInvaders() para criar os objetos iniciais do jogo.
+**LoadContent()**: Carrega todos os assets (1 tipo de letra, 5 texturas, 2 sons) via MonoGame Content Pipeline. Chama SetupPlayer() e SetupInvaders() para criar os objetos iniciais do jogo.
 
-Update(GameTime): Verifica Escape para sair. Delega o update para os três managers por ordem: jogador → invasores → mísseis.
+**Update(GameTime)**: Verifica Escape para sair. Delega o update para os três managers por ordem: jogador → invasores → mísseis.
 
-Draw(GameTime): Limpa o ecrã a preto. Inicia o SpriteBatch com AlphaBlend e PointClamp (preserva nitidez dos pixels). Desenha o título.
+**Draw(GameTime)**: Limpa o ecrã a preto. Inicia o SpriteBatch com AlphaBlend e PointClamp (preserva nitidez dos pixels). Desenha o título.
 
-SetupPlayer(): Cria um PlayerSprite na posição (400, 550) — centrado horizontalmente, perto do fundo — com collider 60x32.
+**SetupPlayer()**: Cria um PlayerSprite na posição (400, 550) — centrado horizontalmente, perto do fundo — com collider 60x32.
 
-SetupInvaders(): Cria uma grelha de 4×8 invasores. A textura e o collider variam por linha. O espaçamento é de 65px horizontal e 40px vertical, começando em 10, 80.
+**SetupInvaders()**: Cria uma grelha de 4×8 invasores. A textura e o collider variam por linha. O espaçamento é de 65px horizontal e 40px vertical, começando em 10, 80.
 
-CheckInvaderCollision(Rectangle): Itera todos os invasores ativos verificando colisão com o retângulo passado. Se detetada, marca o invasor para ser removido (essencialmente destruindo a nave inimiga) , toca o som de explosão e retorna "true". Chamado pelo MissileSprite a cada frame.
+**CheckInvaderCollision(Rectangle)**: Itera todos os invasores ativos verificando colisão com o retângulo passado. Se detetada, marca o invasor para ser removido (essencialmente destruindo a nave inimiga) , toca o som de explosão e retorna "true". Chamado pelo MissileSprite a cada frame.
 
 **Objetivo e Instruções do Jogo**
 Destruir todos os invasores com os mísseis da nave antes que estes atinjam a parte inferior do ecrã.
@@ -130,7 +267,7 @@ Destruir todos os invasores com os mísseis da nave antes que estes atinjam a pa
  Espaço/Space Bar =>  Disparar míssil;
  Escape/Esc => Sair do jogo ;
 
-Regras
+**Regras**
 - Os invasores movem-se lateralmente e invertem direção ao atingir as bordas do ecrã.
 - O míssil acelera progressivamente após ser disparado.
 
@@ -150,12 +287,12 @@ dotnet run SpaceInvaders.csproj
 
 **Decisões Técnicas**
 
-- Padrão Singleton (Global) => centraliza todas as referências globais sem passar parâmetros entre classes. Permite que MissileSprite aceda ao MissileController e ao SpriteBatch sem referência direta ao Game.
-- Interface GameInterface => garante que todos os objetos implementam o ciclo MonoGame, facilitando a integração com o TManager.
-- TManager<T> genérico => evita duplicação de código para gerir jogadores, invasores e mísseis. A mesma lógica de update/draw/remoção serve para qualquer tipo de objeto do jogo.
-- DeleteList separada => remove de forma segura durante iteração:1. objetos são marcados no Update 2. removidos apenas após o ciclo completo, evitando InvalidOperationException.
-- Aceleração progressiva do míssil ("acceleration -= 0.03f) => acelera a velocidade do missil ao longo do ecrã, criando uma sensação mais natural.
-- SamplerState.PointClamp no SpriteBatch => preserva a nitidez dos sprites pixel art.
+- **Padrão Singleton (Global)** => centraliza todas as referências globais sem passar parâmetros entre classes. Permite que MissileSprite aceda ao MissileController e ao SpriteBatch sem referência direta ao Game.
+- **Interface GameInterface** => garante que todos os objetos implementam o ciclo MonoGame, facilitando a integração com o TManager.
+- **TManager<T> genérico** => evita duplicação de código para gerir jogadores, invasores e mísseis. A mesma lógica de update/draw/remoção serve para qualquer tipo de objeto do jogo.
+- **DeleteList separada** => remove de forma segura durante iteração:1. objetos são marcados no Update 2. removidos apenas após o ciclo completo, evitando InvalidOperationException.
+- **Aceleração progressiva do míssil ("acceleration -= 0.03f)** => acelera a velocidade do missil ao longo do ecrã, criando uma sensação mais natural.
+- **SamplerState.PointClamp no SpriteBatch** => preserva a nitidez dos sprites pixel art.
 - Resolução fixa 800x600 => definida como constantes estáticas em Global.
 
 **Alterações ao Projeto Original**
