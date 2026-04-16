@@ -158,11 +158,11 @@ _________________________________________________
 **.Modules/Util/Global.cs**
 => Implementa o padrão "Singleton thread-safe" usando uma instância estática "readonly" que inicia num construtor estático (garantia de segurança). Inclui tamanho da janela do jogo.
 
-| instance => Global | Instância única (privada, readonly) |
-| CoreGame => SpaceInvaders | Referência à classe principal do jogo |
-| ScreenWidth => int | Largura do ecrã: 800px |
-| ScreenHeight => int | Altura do ecrã: 600px |
-| Instance => propriedade | Acesso público à instância |
+- instance => instância única (privada, readonly)
+- CoreGame => referência à classe principal do jogo
+- ScreenWidth => largura do ecrã: 800px
+- ScreenHeight => altura do ecrã: 600px
+- `nstance => propriedade de acesso público à instância única
 
 **.Modules/Game/GameInterface.cs**
 => Interface que define o contrato de todos os objetos do jogo, contendo os 4 métodos do ciclo em MonoGame: Initialize(), LoadContent(), Update(GameTime) e Draw(GameTime). Garante que todos os objetos são compatíveis com o ciclo.
@@ -173,40 +173,43 @@ _________________________________________________
 **.Modules/Manager/TManager.cs**
 => Gestor que aceita qualquer valores tipo T : GameObject.
 
-| objectList => List<T> — lista dos objetos que estão ativos |
-| DeleteList => List<Int32> — IDs marcados para remover |
-| Add(T obj) => Atribui ID automático e adiciona à lista |
-| MarkForRemoval(Int32 id) => Adiciona ID à fila de remover |
-| Delete(Int32 id) => Remove o objeto com o ID que foi dado |
-| Update(GameTime) => Chama "Update" em todos os objetos e processa os pedidos pendentes |
-| Draw(GameTime) => Chama "Draw" em todos os objetos |
+- objectList => List<T> — lista dos objetos ativos
+- DeleteList => List<Int32> — IDs marcados para remoção
+- Add(T obj) => atribui ID automático e adiciona à lista
+- MarkForRemoval(Int32 id) => adiciona ID à fila de remoção
+- Delete(Int32 id) => remove o objeto com o ID dado
+- Update(GameTime) => chama `Update` em todos os objetos e processa remoções pendentes
+- Draw(GameTime) => chama `Draw` em todos os objetos
+
 
 A separação entre "MarkForRemoval" e "Delete" evita modificar a lista enquanto está a ser processada no "Update" , prevenindo "InvalidOperationException" (erro).
 
 **.Modules/Sprite/Sprite.cs**
 Classe base de todos os objetos visuais. Tem todos os atributos necessários para desenhar uma sprite com MonoGame.
 
-| SpriteTexture => Texture2D => Textura do sprite |
-| "Position" => "Vector2" => Posição no ecrã em pixels |
-| "Collider" => "Rectangle" => Dimensão do collider |
-| "Scale" => "Vector2" => Escala/tamnho de desenho |
-| "Color" => Cor/tint aplicado ao sprite |
-| "Effect" => "SpriteEffects" => Efeitos |
-| "Speed" => "float" => Velocidade de movimento |
-| "Rotation" => "float" => Ângulo de rotação |
+- SpriteTexture => Texture2D — textura do sprite
+- Position => Vector2 — posição no ecrã em pixels
+- Collider => Rectangle — dimensões do collider
+- Scale => Vector2 — escala de desenho
+- Color => cor/tint aplicado ao sprite
+- Effect => SpriteEffects — efeitos de flip
+- Speed => float — velocidade de movimento
+- Rotation => float — ângulo de rotação
+
+
 **Métodos auxilizares:**
--> GetSpriteCollider() — calcula o "Rectangle" de colisão na posição atual do sprite da nave principal;
+-> GetSpriteCollider() — calcula o "Rectangle" de colisão na posição atual do sprite de qualquer nave;
 -> CheckCollision(Rectangle) — verifica interseção com outro retângulo via "Intersects()";
 -> "Draw()" — desenha o sprite usando o SpriteBatch do "Global.Instance.CoreGame";
 
 **.Modules/Sprite/PlayerSprite.cs**
 -> Controla a nave do jogador.
+- playerWidth => 60 — largura usada para calcular o limite direito do ecrã
+- moveSpeed => 2.0f — velocidade de movimento horizontal em pixels por frame
+- shooting => bool — impede disparo contínuo ao segurar a tecla Espaço
 
-| "playerWidth" => 60 | Largura usada para calcular o limite horizontal no ecrã |
-| "moveSpeed" => 2.0f | Velocidade de movimento horizontal em pixels por frame |
-| "shooting" => bool | Impede disparo contínuo ao segurar a tecla Espaço (tecla do disparo) |
 
-"Update()": Lê o teclado — 'A' move para a esquerda, 'D' para a direita, dentro dos limites (0 a 60 ScreenWidth). Ao premir 'Espaço' com 'shooting == false', chama "FireMissile()" e ativa a mecânica e processo "shooting". Ao largar a tecla espaço, "shooting" volta a false.
+"Update()": Lê o teclado — 'A' move para a esquerda, 'D' para a direita, dentro dos limites (0 a -60 ScreenWidth). Ao premir 'Espaço' com 'shooting == false', chama "FireMissile()" e ativa a mecânica e processo "shooting". Ao largar a tecla espaço, "shooting" volta a false.
 
 "FireMissile()": Cria um MissileSprite centrado na nave (Position.X + 27) e adiciona-o ao "MissileManager". Toca o som de disparo com volume 0.3f.
 
@@ -227,17 +230,17 @@ Controla o comportamento do míssil que é disparado pelo jogador.
 
 **SpaceInvaders.cs** — A Classe Principal
 Variáveis de Estado
+- graphics => GraphicsDeviceManager — gere a janela e resolução
+- spriteBatch => SpriteBatch — responsável por desenhar todos os sprites
+- atroxFont => SpriteFont — tipo de letra no ecrã
+- PlayerTexture => Texture2D — textura da nave
+- missileTexture => Texture2 — textura do míssil
+- *EnemyTexture => Texture2D — texturas dos 4 tipos de inimigos
+- soundEffects => List<SoundEffect> — lista com os 2 efeitos sonoros
+- InvaderManager => TManager<GameObject> — gere todos os invasores ativos
+- PlayerManager => TManager<GameObject> — gere a nave controlada pelo jogador
+- MissileManager => TManager<GameObject> — gere os mísseis ativos
 
-| graphics => GraphicsDeviceManager : Gere a janela e resolução |
-| spriteBatch => SpriteBatch : Responsável por "desenhar" todos os sprites |
-| atroxFont => SpriteFont : Tipo de letra no ecrã |
-| playerTexture => Texture2D : Textura da nave |
-| missileTexture => Texture2D : Textura do míssil |
-| EnemyTexture => Texture2D : Texturas dos inimigos (4 tipos/cores) |
-| soundEffects => List<SoundEffect> : Lista com os efeitos sonoros (apenas 2) |
-| InvaderManager => TManager<GameObject> : Gere todos os invasores ativos |
-| PlayerManager => TManager<GameObject> : Gere a nave controlada pelo jogador |
-| MissileManager => TManager<GameObject> : Gere os mísseis ativos/disparados |
 
 **Métodos**
 
