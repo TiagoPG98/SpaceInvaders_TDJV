@@ -15,11 +15,11 @@ _________________________________________________
 
 **Arquitetura Geral**
 O projeto segue uma arquitetura modular em camadas, organizada em namespaces:
-SpaceInvaders — Classe principal do jogo
-Modules.Game — Interface e classe base de todos os objetos do jogo
-Modules.Manager — Gestor genérico de grupos de objetos
-Modules.Sprite — Classes concretas dos objetos visuais (jogador, inimigos, míssil)
-Modules.Util — Utilitários globais (Singleton de configuração)
+SpaceInvaders — **Classe principal do jogo**
+Modules.Game — **Interface e classe base de todos os objetos do jogo**
+Modules.Manager — **Gestor genérico de grupos de objetos**
+Modules.Sprite — **Classes concretas dos objetos visuais (jogador, inimigos, míssil)**
+Modules.Util — **Utilitários globais (Singleton de configuração)**
 
 **Padrão Singleton — Global**
 A classe Global implementa o padrão Singleton thread-safe, garantindo uma única instância partilhada em todo o jogo. Armazena referências globais essenciais como a largura/altura do ecrã (800x600) e uma referência à instância principal SpaceInvaders, acessível por todos os módulos sem necessidade de passar parâmetros.
@@ -42,7 +42,7 @@ GameInterface (interface)
 A interface GameInterface define o contrato dos 4 métodos MonoGame (Initialize, LoadContent, Update, Draw). A classe GameObject implementa-a com métodos virtuais vazios. A classe Sprite estende GameObject adicionando todos os atributos visuais. As classes concretas sobrepõem (override) apenas o que necessitam.
 
 **Gestor Genérico — TManager<T>**
-Um dos pontos centrais desta implementação é o **TManager<T>**, uma classe genérica que gere coleções de qualquer tipo derivado de **GameObject**. Permite adicionar objetos com IDs automáticos, marcar objetos para remoção segura e iterar chamando **Update/Draw** em todos os objetos geridos.
+Um dos pontos centrais desta implementação é o **TManager<T>, uma classe genérica que gere coleções de qualquer tipo derivado de GameObject**. Permite adicionar objetos com IDs automáticos, marcar objetos para remoção segura e iterar chamando **Update/Draw** em todos os objetos geridos.
 
 A remoção é feita através de uma **DeleteList** — os objetos são marcados durante o Update mas apenas removidos no final do ciclo, evitando erros de modificação da coleção durante iteração.
 
@@ -162,7 +162,7 @@ _________________________________________________
 - CoreGame => referência à classe principal do jogo
 - ScreenWidth => largura do ecrã: 800px
 - ScreenHeight => altura do ecrã: 600px
-- `nstance => propriedade de acesso público à instância única
+- instance => propriedade de acesso público à instância única
 
 **.Modules/Game/GameInterface.cs**
 => Interface que define o contrato de todos os objetos do jogo, contendo os 4 métodos do ciclo em MonoGame: Initialize(), LoadContent(), Update(GameTime) e Draw(GameTime). Garante que todos os objetos são compatíveis com o ciclo.
